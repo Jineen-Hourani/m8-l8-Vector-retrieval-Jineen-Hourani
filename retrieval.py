@@ -43,10 +43,65 @@ def create_schema(client: weaviate.Client) -> None:
     exists as the unified dense-embedding source and a backward-compat
     "full doc" view but does not participate in BM25.
     """
-    # TODO: if the class exists, delete it
-    # TODO: build the class definition dict with the 6 properties above
-    # TODO: client.schema.create_class(class_def)
-    raise NotImplementedError("create_schema is not yet implemented")
+    # if the class exists, delete it
+    if client.schema.exists("Post"):
+        client.schema.delete_class("Post")
+
+    # build the class definition dict with the 6 properties above
+    # client.schema.create_class(class_def)
+    
+    client.schema.create_class({
+        "class": "Post",
+        "vectorizer": "none",                   
+        "vectorIndexConfig": {"distance": "cosine"}, 
+        "properties": [
+            {
+                "name": "doc_id",
+                "dataType": ["text"],
+                "indexSearchable": False, 
+                "indexFilterable": True,   
+                "tokenization": "field",
+            },
+            {
+                "name": "subset",
+                "dataType": ["text"],
+                "indexSearchable": False,
+                "indexFilterable": True,
+                "tokenization": "field",
+            },
+            {
+                "name": "title",
+                "dataType": ["text"],
+                "indexSearchable": True,   
+                "indexFilterable": False,
+                "tokenization": "word",
+            },
+            {
+                "name": "question_text",
+                "dataType": ["text"],
+                "indexSearchable": True,   
+                "indexFilterable": False,
+                "tokenization": "word",
+            },
+            {
+                "name": "answer_text",
+                "dataType": ["text"],
+                "indexSearchable": True,   
+                "indexFilterable": False,
+                "tokenization": "word",
+            },
+            {
+                "name": "text",
+                "dataType": ["text"],
+                "indexSearchable": False,  
+                "indexFilterable": False,
+                "tokenization": "word",
+            },
+        ],
+    })
+
+
+    
 
 
 def index_corpus(client: weaviate.Client, corpus_path: str, embedder) -> int:
